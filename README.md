@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-    <a href="#"><img src="https://pypi.org/project/pip-art/" alt="PyPI"></a>
+    <a href="https://pypi.org/project/pip-art/"><img src="https://img.shields.io/pypi/v/pip-art.svg" alt="PyPI"></a>
     <a href="#"><img src="https://img.shields.io/badge/python-3.9+-blue.svg" alt="Python version"></a>
     <a href="#"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License"></a>
 </p>
