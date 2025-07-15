@@ -22,7 +22,7 @@ You run `pip install`, `npm install`, or `docker build` and watch lines of text 
 
 **`pip-art`** transforms this dead time into a moment of discovery and delight. It hides the messy logs and displays a random piece of art from a community-driven gallery, turning your terminal into a tiny art museum while you wait.
 
-![Screenshot of pip-art in action](https://i.postimg.cc/PJZfMRN4/2025-07-13-142412.png)
+![Screenshot of pip-art in action](https://i.postimg.cc/4NJpMPB3/2025-07-15-114221.png)
 
 When the command is done, you get your terminal back, plus a final success or failure report.
 
