@@ -93,7 +93,8 @@ def fetch_random_art_from_gallery(temp_dir):
         ]
 
         if not image_files:
-            return "No compatible images found in the online gallery.", {}
+            # If the gallery is empty, don't show an error, just use the fallback.
+            return FALLBACK_IMAGE_PATH, FALLBACK_METADATA
 
         # Select a random image file object
         random_image_data = random.choice(image_files)
@@ -151,12 +152,9 @@ def fetch_random_art_from_gallery(temp_dir):
         
         return temp_image_path, metadata
 
-    except (requests.exceptions.RequestException, requests.exceptions.Timeout):
-        # On any network-related error (404, timeout, no connection),
-        # return the local fallback art instead of an error message.
+    except (requests.exceptions.RequestException, requests.exceptions.Timeout, KeyError, IndexError, TypeError, json.JSONDecodeError):
+        # On any network or data error, return the local fallback art. It's more user-friendly.
         return FALLBACK_IMAGE_PATH, FALLBACK_METADATA
-    except (KeyError, IndexError, TypeError, json.JSONDecodeError):
-        return "Invalid or unexpected data from GitHub API.", {}
 
 
 def load_art_from_file(image_path):
@@ -295,37 +293,63 @@ def display_art(art_object, metadata, stop_event):
 
 def run_command(command, stop_event, result_container):
     """
-    Runs the given command in the background with its output suppressed,
+    Runs the given command in the background, captures its output,
     stores the exit code, and sets the stop_event when it completes.
     """
     try:
+        # Use shell=True only for string-based commands (from -c flag).
+        # It's safer and more reliable for list-based commands to use shell=False.
+        use_shell = isinstance(command, str)
+
         process = subprocess.Popen(
             command,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=use_shell,
+            text=True,
+            encoding='utf-8',
+            errors='replace'
         )
-        exit_code = process.wait()
+        stdout, stderr = process.communicate()
+        exit_code = process.returncode
+
         result_container["exit_code"] = exit_code
-    except Exception:
+        if stdout:
+            result_container["stdout"] = stdout
+        if stderr:
+            result_container["stderr"] = stderr
+
+    except Exception as e:
         result_container["exit_code"] = 1 # Generic failure
+        result_container["error_message"] = str(e)
     finally:
-        # Ensure the event is always set, even if the command fails
-    stop_event.set()
+        stop_event.set()
 
 
 def main():
     if len(sys.argv) < 2 or sys.argv[1] in ('--help', '-h'):
-        print("Usage: pip-art <command-to-run>")
+        print("Usage: pip-art [-c] <command-to-run>")
         print("\nDisplays terminal art while the specified command runs.")
-        print("Art is fetched from a community gallery on GitHub.")
-        print("\nExample: pip-art pip install numpy")
+        print("Pass the command directly, or use -c for commands with complex quoting.")
+        print("\nExamples:")
+        print("  pip-art pip install numpy")
+        print("  pip-art -c \"echo 'Hello World'\"")
         sys.exit(1)
 
-    command_to_run = sys.argv[1:]
+    # Handle '-c' flag for passing command as a single string
+    if sys.argv[1] == '-c':
+        if len(sys.argv) < 3:
+            _print_error_box("Error: The '-c' flag requires a command string to be provided.")
+            sys.exit(1)
+        command_to_run = sys.argv[2] # The command is the third argument
+    else:
+        # If no '-c' is used, treat all following arguments as the command
+        command_to_run = sys.argv[1:]
+
     command_result = {} # To store the exit code from the thread
 
     art_object = None # Default to None
-        metadata = {}
+    metadata = {}
     
     # Use a temporary directory for downloaded art
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -356,6 +380,9 @@ def main():
     
     # After closing the alternate screen, print the final status.
     exit_code = command_result.get("exit_code")
+    error_message = command_result.get("error_message")
+    stdout = command_result.get("stdout")
+    stderr = command_result.get("stderr")
 
     console = Console()
     if exit_code == 0:
@@ -365,12 +392,20 @@ def main():
             border_style="green"
         ))
     elif exit_code is not None:
+        error_text = f"❌ Failed! The command finished with exit code {exit_code}."
+        if error_message:
+            error_text += f"\n\n[bold yellow]Reason:[/bold yellow]\n{error_message}"
+        if stderr:
+            error_text += f"\n\n[bold]Error Output (stderr):[/bold]\n{stderr}"
+        if stdout:
+            error_text += f"\n\n[bold]Standard Output (stdout):[/bold]\n{stdout}"
+
         console.print(Panel(
-            Text(f"❌ Failed! The command finished with exit code {exit_code}.", justify="center"),
+            Text(error_text, justify="left"),
             title="[bold red]Status Report[/bold red]",
             border_style="red"
         ))
-        console.print("[yellow]Note: Command output was hidden. Run the command again without 'pip-art' to see the full error details.[/yellow]")
+        console.print("[yellow]Note: Original command output was captured above. Run without 'pip-art' to interact directly.[/yellow]")
 
 
 if __name__ == "__main__":

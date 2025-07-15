@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pip-art"
-version = "0.1.2"
+version = "0.1.5"
 authors = [
   { name="Timur", email="kk7629803@gmail.com" },
 ]
