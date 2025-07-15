@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pip-art"
+version = "0.0.1"
+authors = [
+  { name="Your Name", email="your.email@example.com" },
+]
+description = "A small package to display terminal art during long-running commands like 'pip install'."
+readme = "README.md"
+requires-python = ">=3.7"
+license = { text = "MIT" }
+dependencies = [
+    "requests",
+    "term-image==0.7.1",
+    "rich"
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/pypa/sampleproject"
+"Bug Tracker" = "https://github.com/pypa/sampleproject/issues"
+
+[project.scripts]
+pip-art = "pip_art.main:main"
+
+[tool.setuptools]
+package-data = { "pip_art" = ["images/*.png", "images/*.json"] }
+
+[tool.setuptools.dynamic]
+version = { attr = "pip_art.__version__" } 
