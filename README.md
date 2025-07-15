@@ -89,7 +89,7 @@ There are two great ways to contribute to the `pip-art` ecosystem:
 
 Have a great piece of art everyone should see? Add it to the main gallery!
 
-The process is managed through our gallery repository: **[pip-art-gallery](https://github.com/YOUR_USERNAME/pip-art-gallery)**. *(This link should point to the actual default gallery repo you create).*
+The process is managed through our gallery repository: **[pip-art-gallery](https://github.com/Zahabsbs/pip-art-gallery)**.
 
 1.  **Prepare your files:**
     *   **Image File:** A `PNG`, `JPG`, or an animated `GIF`.

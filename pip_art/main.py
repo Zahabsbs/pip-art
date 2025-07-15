@@ -20,7 +20,7 @@ from rich.progress import Progress, BarColumn, TextColumn, TransferSpeedColumn, 
 # --- Configuration ---
 # The GitHub repository where the art gallery is stored.
 # This serves as the DEFAULT if no config file is found.
-DEFAULT_ART_GALLERY_REPO = "YOUR_USERNAME/YOUR_REPO"
+DEFAULT_ART_GALLERY_REPO = "Zahabsbs/pip-art-gallery"
 REQUEST_TIMEOUT = 10 # Seconds to wait for a response from GitHub
 
 # --- Fallback Art ---
@@ -183,7 +183,7 @@ def display_art(art_object, metadata, stop_event):
     and preserve the user's command history.
     """
     console = Console()
-
+    
     if isinstance(art_object, str):
         # Even errors should be displayed cleanly without messing up the terminal
         print("\x1b[?1049h\x1b[?25l", end="") # Enter alternate screen
@@ -310,7 +310,7 @@ def run_command(command, stop_event, result_container):
         result_container["exit_code"] = 1 # Generic failure
     finally:
         # Ensure the event is always set, even if the command fails
-        stop_event.set()
+    stop_event.set()
 
 
 def main():
@@ -325,7 +325,7 @@ def main():
     command_result = {} # To store the exit code from the thread
 
     art_object = None # Default to None
-    metadata = {}
+        metadata = {}
     
     # Use a temporary directory for downloaded art
     with tempfile.TemporaryDirectory() as temp_dir:
